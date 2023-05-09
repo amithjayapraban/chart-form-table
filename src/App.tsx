@@ -4,21 +4,20 @@ import "./App.css";
 import Chart from "./pages/Chart";
 import Table from "./pages/Table";
 import Form from "./pages/Form";
-
-import Index from "./pages/Index";
+import Nav from "./pages/Nav";
+import Details from "./pages/Details";
 
 function App() {
   return (
-    <div className="App flex flex-col items-center h-screen w-full justify-center ">
+    <div className="App flex flex-col items-center h-screen  w-full  ">
       <Router>
-        
-          <Index />
-          <Routes>
-            <Route path="/" element={<Chart />} />
-            <Route path="/table" element={<Table />} />
-            <Route path="/form" element={<Form />} />
-          </Routes>
-
+        <Nav />
+        <Routes>
+          <Route path="/" element={<Chart />} />
+          <Route path="/table" element={<Table />} />
+          <Route path="/form" element={<Form />} />
+          <Route path="/details/:id" element={<Details h="h-screen"/>} />
+        </Routes>
       </Router>
     </div>
   );
