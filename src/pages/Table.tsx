@@ -13,11 +13,13 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
-
-import Data from "../api/data.json";
 import { useNavigate } from "react-router-dom";
 import Form from "./Form";
-
+import { useSelector } from "react-redux";
+import type { RootState } from "../redux/store";
+import { getAge } from "../util/getAge";
+import { foredit } from "./Form";
+import { Paper, TableHead } from "@mui/material";
 interface Table {
   count: number;
   page: number;
@@ -55,7 +57,7 @@ function Pagination(props: Table) {
   ) => {
     onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
   };
-  const modal = document.querySelector("[data-modal]") as HTMLDialogElement;
+
   return (
     <Box sx={{ flexShrink: 0, ml: 2.5 }}>
       <IconButton
@@ -99,21 +101,14 @@ function Pagination(props: Table) {
 }
 
 export default function TableComponent() {
-  const rows = Data.data.sort((a, b) => a.id - b.id);
+  var rows = useSelector((state: RootState) => state.formSliceReducer.data);
+  var columns = ["First name", "Last name", "Email", "Age", "Gender", "", ""];
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
+  const [forEdit, setForEdit] = React.useState<foredit>();
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-  const calculateAge = (birthday: string) => {
-    let [d, m, y] = birthday.split("/");
-    const diff =
-      Date.now() -
-      new Date(`${parseInt(y)}-${parseInt(m)}-${parseInt(d)}`).getTime();
-    const ageDate = new Date(diff);
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
-  };
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
@@ -133,11 +128,12 @@ export default function TableComponent() {
     <div className="flex relative">
       <section
         id="Dialog_edit"
-        className="p-8 py-10 edit_modal hidden w-[60%] overflow-y-scroll  h-[90%] absolute top-12 z-[999] bg-white rounded-lg shadow-lg border"
+        className="p-8 py-8 edit_modal hidden w-[40%]   h-[90%] absolute top-4 left-64 z-[999] bg-white border-4 rounded-lg shadow-lg "
       >
         <Form
           edit={true}
-          {...{ h: "h-full overflow-hidden", w: "w-full", p: "p-0" }}
+          forEdit={forEdit}
+          {...{ h: "h-unset overflow-hidden", w: "w-full", p: "p-0 " }}
         />
 
         <button
@@ -147,142 +143,108 @@ export default function TableComponent() {
           className="flex z-999 absolute top-2 w-4 h-4 justify-center items-center p-0 bg-red-600 rounded-full left-2 z-[999]]  "
         ></button>
       </section>
-      <TableContainer className="p-8  ">
-        <Table sx={{ minWidth: 500 }} aria-label="table">
-          <TableBody>
-            <TableRow className="border rounded-t">
-              <TableCell
-                className="bg-gray-700 "
-                align="left"
-                style={{ color: "white", width: 160 }}
-              >
-                First Name
-              </TableCell>
-
-              <TableCell
-                className="bg-gray-700"
-                align="left"
-                style={{ color: "white", width: 160 }}
-              >
-                Last Name
-              </TableCell>
-              <TableCell
-                className="bg-gray-700"
-                align="left"
-                style={{ color: "white", width: 200 }}
-              >
-                Email
-              </TableCell>
-              <TableCell
-                className="bg-gray-700"
-                align="left"
-                style={{ color: "white", width: 160 }}
-              >
-                Age
-              </TableCell>
-              <TableCell
-                className="bg-gray-700"
-                align="left"
-                style={{ color: "white", width: 160 }}
-              >
-                Gender
-              </TableCell>
-              <TableCell
-                className="bg-gray-700"
-                align="left"
-                style={{ color: "white", width: 100 }}
-              ></TableCell>
-              <TableCell
-                className="bg-gray-700  "
-                style={{ color: "white", width: 100 }}
-              ></TableCell>
-            </TableRow>
-
-            {(rowsPerPage > 0
-              ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              : rows
-            ).map((row) => (
-              <TableRow key={row.id}>
-                <TableCell
-                  className="border-l  "
-                  style={{ width: 160 }}
-                  component="th"
-                  scope="row"
-                >
-                  {row.first_name}
-                </TableCell>
-                <TableCell style={{ width: 160 }} align="left">
-                  {row.last_name}
-                </TableCell>
-                <TableCell  style={{ width: 200 }} align="left">
-                  {row.email}
-                </TableCell>
-                <TableCell style={{ width: 160 }} align="left">
-                  {calculateAge(row.dob)}
-                </TableCell>
-                <TableCell style={{ width: 160 }} align="left">
-                  {row.gender}
-                </TableCell>
-                <TableCell style={{ width: 100 }} align="left">
-                  <button
-                    onClick={() =>
-                      document
-                        .getElementById("Dialog_edit")
-                        ?.classList.toggle("hidden")
-                    }
-                    className="text-white bg-orange-500 px-1 rounded"
-                  >
-                    Edit
-                  </button>
-                </TableCell>
-                <TableCell
-                  className="flex flex-col border-r"
-                  style={{ width: 100 }}
-                  align="right"
-                >
-                  <button
-                    onClick={() => navigate(`/details/${row.id}`)}
-                    className="text-white bg-emerald-500 px-1 rounded"
-                  >
-                    View
-                  </button>
-                </TableCell>
+      <Paper sx={{ width: "100%", overflow: "hidden" }}>
+        <TableContainer sx={{ height: window.innerHeight - 110 }} className=" ">
+          <Table stickyHeader aria-label="table">
+            <TableHead className="">
+              <TableRow>
+                {columns.map((c: string) => {
+                  return (
+                    <TableCell
+                      align="left"
+                      style={{ fontWeight: 600, color: "" }}
+                    >
+                      {c}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
-            ))}
-            {emptyRows > 0 && (
-              <TableRow style={{ height: 53 * emptyRows }}>
-                <TableCell colSpan={6} />
-              </TableRow>
-            )}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TablePagination
-                rowsPerPageOptions={[
-                  5,
-                  10,
-                  25,
-                  50,
-                  { label: "All", value: -1 },
-                ]}
-                colSpan={7}
-                count={rows.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                SelectProps={{
-                  inputProps: {
-                    "aria-label": "rows per page",
-                  },
-                  native: true,
-                }}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-                ActionsComponent={Pagination}
-              />
-            </TableRow>
-          </TableFooter>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {(rowsPerPage > 0
+                ? rows.slice(
+                    page * rowsPerPage,
+                    page * rowsPerPage + rowsPerPage
+                  )
+                : rows
+              ).map((row) => (
+                <TableRow hover key={row.id}>
+                  <TableCell
+                    className="border-l  "
+                    style={{ width: 160 }}
+                    component="th"
+                    scope="row"
+                  >
+                    {row.first_name}
+                  </TableCell>
+                  <TableCell style={{ width: 200 }} align="left">
+                    {row.last_name}
+                  </TableCell>
+                  <TableCell style={{ width: 270 }} align="left">
+                    {row.email}
+                  </TableCell>
+                  <TableCell style={{ width: 160 }} align="left">
+                    {getAge(row.dob)}
+                  </TableCell>
+                  <TableCell style={{ width: 160 }} align="left">
+                    {row.gender}
+                  </TableCell>
+                  <TableCell style={{ width: 100 }} align="left">
+                    <button
+                      onClick={() => {
+                        setForEdit(row);
+                        document
+                          .getElementById("Dialog_edit")
+                          ?.classList.toggle("hidden");
+                      }}
+                      className="text-white bg-orange-500 px-1 rounded"
+                    >
+                      Edit
+                    </button>
+                  </TableCell>
+                  <TableCell
+                    className="flex flex-col border-r"
+                    style={{ width: 100 }}
+                    align="right"
+                  >
+                    <button
+                      onClick={() => navigate(`/details/${row.id}`)}
+                      className="text-white bg-emerald-500 px-1 rounded"
+                    >
+                      View
+                    </button>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {emptyRows > 0 && (
+                <TableRow style={{ height: 53 * emptyRows }}>
+                  <TableCell colSpan={6} />
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <TableRow >
+          <TablePagination
+            width={window.innerWidth}
+            rowsPerPageOptions={[ 10,15, 25, 50, { label: "All", value: -1 }]}
+            colSpan={7}
+            count={rows.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            SelectProps={{
+              inputProps: {
+                "aria-label": "rows per page",
+              },
+              native: true,
+            }}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            ActionsComponent={Pagination}
+          />
+        </TableRow>
+      </Paper>
     </div>
   );
 }
