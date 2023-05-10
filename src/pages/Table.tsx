@@ -5,7 +5,6 @@ import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
-import TableFooter from "@mui/material/TableFooter";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import IconButton from "@mui/material/IconButton";
@@ -20,6 +19,7 @@ import type { RootState } from "../redux/store";
 import { getAge } from "../util/getAge";
 import { foredit } from "./Form";
 import { Paper, TableHead } from "@mui/material";
+
 interface Table {
   count: number;
   page: number;
@@ -59,7 +59,7 @@ function Pagination(props: Table) {
   };
 
   return (
-    <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+    <Box sx={{ flexShrink: 0, ml: 2.5, paddingX: 4 }}>
       <IconButton
         onClick={handleFirstPageButtonClick}
         disabled={page === 0}
@@ -102,10 +102,11 @@ function Pagination(props: Table) {
 
 export default function TableComponent() {
   var rows = useSelector((state: RootState) => state.formSliceReducer.data);
-  var columns = ["First name", "Last name", "Email", "Age", "Gender", "", ""];
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [forEdit, setForEdit] = React.useState<foredit>();
+  var columns = ["First name", "Last name", "Email", "Age", "Gender", "", ""];
+
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
@@ -125,10 +126,10 @@ export default function TableComponent() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex relative">
+    <div id="table_wrap " className="flex relative">
       <section
         id="Dialog_edit"
-        className="p-8 py-8 edit_modal hidden w-[40%]   h-[90%] absolute top-4 left-64 z-[999] bg-white border-4 rounded-lg shadow-lg "
+        className="px -8 py-0 edit_modal hidden md:w-[50%]   h-[90%] absolute top-4 left-64 z-[999] bg-white border rounded-lg shadow-lg "
       >
         <Form
           edit={true}
@@ -137,22 +138,39 @@ export default function TableComponent() {
         />
 
         <button
+          aria-label="Close"
           onClick={() =>
             document.getElementById("Dialog_edit")?.classList.toggle("hidden")
           }
-          className="flex z-999 absolute top-2 w-4 h-4 justify-center items-center p-0 bg-red-600 rounded-full left-2 z-[999]]  "
+          className="flex z-999 absolute top-3 w-4 h-4 justify-center items-center p-0 bg-red-600 rounded-full left-3 z-[999]]  "
         ></button>
       </section>
-      <Paper sx={{ width: "100%", overflow: "hidden" }}>
-        <TableContainer sx={{ height: window.innerHeight - 110 }} className=" ">
-          <Table stickyHeader aria-label="table">
-            <TableHead className="">
+      <Paper
+        sx={{ boxShadow: 0, border: 0, width: "100%", overflow: "hidden" }}
+      >
+        <TableContainer
+          sx={{
+            boxShadow: 0,
+
+            paddingX: 4,
+            marginTop: 4,
+            height: window.innerHeight - 143,
+          }}
+          className=" "
+        >
+          <Table className="border-x border-t " stickyHeader aria-label="table">
+            <TableHead>
               <TableRow>
-                {columns.map((c: string) => {
+                {columns.map((c: string, i) => {
                   return (
                     <TableCell
+                      key={i}
                       align="left"
-                      style={{ fontWeight: 600, color: "" }}
+                      style={{
+                        fontWeight: 600,
+                        color: "rgba(0,0,0,.8)",
+                        background: "",
+                      }}
                     >
                       {c}
                     </TableCell>
@@ -170,7 +188,7 @@ export default function TableComponent() {
               ).map((row) => (
                 <TableRow hover key={row.id}>
                   <TableCell
-                    className="border-l  "
+                    className="  "
                     style={{ width: 160 }}
                     component="th"
                     scope="row"
@@ -197,13 +215,13 @@ export default function TableComponent() {
                           .getElementById("Dialog_edit")
                           ?.classList.toggle("hidden");
                       }}
-                      className="text-white bg-orange-500 px-1 rounded"
+                      className="text-white bg-orange-400 px-1 rounded"
                     >
                       Edit
                     </button>
                   </TableCell>
                   <TableCell
-                    className="flex flex-col border-r"
+                    className="flex flex-col "
                     style={{ width: 100 }}
                     align="right"
                   >
@@ -225,10 +243,10 @@ export default function TableComponent() {
           </Table>
         </TableContainer>
 
-        <TableRow >
+        <TableRow>
           <TablePagination
             width={window.innerWidth}
-            rowsPerPageOptions={[ 10,15, 25, 50, { label: "All", value: -1 }]}
+            rowsPerPageOptions={[10, 15, 25, 50, { label: "All", value: -1 }]}
             colSpan={7}
             count={rows.length}
             rowsPerPage={rowsPerPage}

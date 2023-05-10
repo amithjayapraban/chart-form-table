@@ -1,9 +1,12 @@
-import React from 'react'
-import { useNavigate} from "react-router-dom";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 export default function Nav() {
-     const navigate = useNavigate();
+  const navigate = useNavigate();
   return (
-    <div className="flex text-orange-50 border-b  font-bold bg-emerald-400 w-full justify-start items-center pt-6 pb-2 px-4 gap-8">
+    <div className="flex relative text-gray-600  font-semibold bg-white  w-full justify-start items-center pt-6 pb-2 px-4 gap-8">
+      <a href="" className=" tracking-wide" onClick={() => navigate("/")}>
+        📊
+      </a>
       <a
         href=""
         className="rounded tracking-wide"

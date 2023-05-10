@@ -16,7 +16,7 @@ function App() {
           <Route path="/" element={<Chart />} />
           <Route path="/table" element={<Table />} />
           <Route path="/form" element={<Form />} />
-          <Route path="/details/:id" element={<Details h="h-screen"/>} />
+          <Route path="/details/:id" element={<Details h="h-screen" />} />
         </Routes>
       </Router>
     </div>
